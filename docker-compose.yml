@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  api-types:
+    container_name: api-types
+    build: ./types_api
+
+    env_file:
+      - .env
+
+    networks:
+      - shared_net
+
+    ports:
+      - "8000:8000"
+
+    restart: unless-stopped
+
+    read_only: true
+
+    tmpfs:
+      - /tmp
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
+
+networks:
+  shared_net:
+    external: true

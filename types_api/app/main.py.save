@@ -1,0 +1,220 @@
+import os
+from typing import List, Any, Dict
+
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import mysql.connector
+from mysql.connector import Error as MySQLError
+
+app = FastAPI(title="Types API", version="1.0.0", description="Serves the /Types endpoint from MariaDB")
+
+# CORS (open; tighten in production)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ---- DB CONFIG (override via env in docker-compose) ----
+DB_HOST = os.getenv("DB_HOST", "mariadb")
+DB_PORT = int(os.getenv("DB_PORT", "3306"))
+DB_USER = os.getenv("DB_USER", "myuser")
+DB_PASS = os.getenv("DB_PASS", "mypassword")
+DB_NAME = os.getenv("DB_NAME", "mydatabase")
+DB_TABLE_TYPES = os.getenv("DB_TABLE_TYPES", "Types")  # exact case matters on Linux
+DB_TABLE_COUNTRIES = os.getenv("DB_TABLE_COUNTRIES", "Countries")  # exact case matters on Linux
+DB_TABLE_PROVINCES = os.getenv("DB_TABLE_PROVINCES", "Provinces")  # exact case matters on Linux
+DB_TABLE_PLACES = os.getenv("DB_TABLE_PLACES", "Places")  # exact case matters on Linux
+DB_TABLE_DATA = os.getenv("DB_TABLE_DATA", "Data")  # exact case matters on Linux
+
+def get_conn():
+    return mysql.connector.connect(
+        host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASS, database=DB_NAME
+    )
+
+
+
+def fetch_types(limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+    # NOTE: use backticks around the table name in case-insensitive/odd names
+    query = f"SELECT * FROM `{DB_TABLE_TYPES}` LIMIT %s OFFSET %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor(dictionary=True)
+        # ensure safe ints for LIMIT/OFFSET
+        lim = max(0, int(limit))
+        off = max(0, int(offset))
+        cur.execute(query, (lim, off))
+        rows = cur.fetchall()
+        return rows
+    except MySQLError as e:
+        raise
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+# You asked for '/Types'. We'll also provide lowercase alias '/types' for convenience.
+@app.get("/Types")
+@app.get("/types")
+def read_types(limit: int = 100, offset: int = 0):
+    try:
+        rows = fetch_types(limit=limit, offset=offset)
+        # FastAPI encodes Decimals and datetimes; no custom serializer needed
+        return JSONResponse(content=rows)
+    except MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"MySQL error: {e.msg}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+
+def fetch_countries(limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+    # NOTE: use backticks around the table name in case-insensitive/odd names
+    query = f"SELECT * FROM `{DB_TABLE_COUNTRIES}` LIMIT %s OFFSET %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor(dictionary=True)
+        # ensure safe ints for LIMIT/OFFSET
+        lim = max(0, int(limit))
+        off = max(0, int(offset))
+        cur.execute(query, (lim, off))
+        rows = cur.fetchall()
+        return rows
+    except MySQLError as e:
+        raise
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+# You asked for '/Types'. We'll also provide lowercase alias '/types' for convenience.
+@app.get("/Countries")
+@app.get("/countries")
+def read_types(limit: int = 100, offset: int = 0):
+    try:
+        rows = fetch_countries(limit=limit, offset=offset)
+        # FastAPI encodes Decimals and datetimes; no custom serializer needed
+        return JSONResponse(content=rows)
+    except MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"MySQL error: {e.msg}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+def fetch_Provinces(limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+    # NOTE: use backticks around the table name in case-insensitive/odd names
+    query = f"SELECT * FROM `{DB_TABLE_PROVINCES}` LIMIT %s OFFSET %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor(dictionary=True)
+        # ensure safe ints for LIMIT/OFFSET
+        lim = max(0, int(limit))
+        off = max(0, int(offset))
+        cur.execute(query, (lim, off))
+        rows = cur.fetchall()
+        return rows
+    except MySQLError as e:
+        raise
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+# You asked for '/Types'. We'll also provide lowercase alias '/types' for convenience.
+@app.get("/provinces")
+@app.get("/Provinces")
+def read_Provinces(limit: int = 100, offset: int = 0):
+    try:
+        rows = fetch_Provinces(limit=limit, offset=offset)
+        # FastAPI encodes Decimals and datetimes; no custom serializer needed
+        return JSONResponse(content=rows)
+    except MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"MySQL error: {e.msg}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+
+
+def fetch_places(limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+    # NOTE: use backticks around the table name in case-insensitive/odd names
+    query = f"SELECT * FROM `{DB_TABLE_PLACES}` LIMIT %s OFFSET %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor(dictionary=True)
+        # ensure safe ints for LIMIT/OFFSET
+        lim = max(0, int(limit))
+        off = max(0, int(offset))
+        cur.execute(query, (lim, off))
+        rows = cur.fetchall()
+        return rows
+    except MySQLError as e:
+        raise
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+# You asked for '/Types'. We'll also provide lowercase alias '/types' for convenience.
+@app.get("/Places")
+@app.get("/places")
+def read_places(limit: int = 100, offset: int = 0):
+    try:
+        rows = fetch_places(limit=limit, offset=offset)
+        # FastAPI encodes Decimals and datetimes; no custom serializer needed
+        return JSONResponse(content=rows)
+    except MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"MySQL error: {e.msg}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+def fetch_data(limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+    # NOTE: use backticks around the table name in case-insensitive/odd names
+    query = f"SELECT * FROM `{DB_TABLE_DATA}` LIMIT %s OFFSET %s"
+    conn = get_conn()
+    try:
+        cur = conn.cursor(dictionary=True)
+        # ensure safe ints for LIMIT/OFFSET
+        lim = max(0, int(limit))
+        off = max(0, int(offset))
+        cur.execute(query, (lim, off))
+        rows = cur.fetchall()
+        return rows
+    except MySQLError as e:
+        raise
+    finally:
+        try:
+            cur.close()
+        except Exception:
+            pass
+        conn.close()
+@app.get("/Data")
+@app.get("/data")
+def read_data(limit: int = 10000, offset: int = 0):
+    try:
+        rows = fetch_data(limit=limit, offset=offset)
+        # FastAPI encodes Decimals and datetimes; no custom serializer needed
+        return JSONResponse(content=rows)
+    except MySQLError as e:
+        raise HTTPException(status_code=500, detail=f"MySQL error: {e.msg}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
